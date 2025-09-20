@@ -1,3 +1,4 @@
+import 'package:finance_app/data/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
@@ -126,7 +127,7 @@ class TransactionList extends StatelessWidget {
           
           // Amount
           Text(
-            '-\$${transaction.amount.toStringAsFixed(2)}',
+            '-₪${transaction.amount.toStringAsFixed(2)}',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               color: AppTheme.errorColor,
               fontWeight: FontWeight.w600,
@@ -138,71 +139,10 @@ class TransactionList extends StatelessWidget {
   }
 
   List<Transaction> _getRecentTransactions() {
-    return [
-      Transaction(
-        id: '1',
-        description: 'Starbucks Coffee',
-        amount: 5.45,
-        date: DateTime.now().subtract(const Duration(hours: 2)),
-        category: 'Food & Dining',
-        categoryIcon: HeroIcons.buildingStorefront,
-        categoryColor: AppTheme.accentColor,
-      ),
-      Transaction(
-        id: '2',
-        description: 'Uber Ride',
-        amount: 12.30,
-        date: DateTime.now().subtract(const Duration(days: 1)),
-        category: 'Transportation',
-        categoryIcon: HeroIcons.truck,
-        categoryColor: const Color(0xFF8B5CF6),
-      ),
-      Transaction(
-        id: '3',
-        description: 'Amazon Purchase',
-        amount: 67.99,
-        date: DateTime.now().subtract(const Duration(days: 2)),
-        category: 'Shopping',
-        categoryIcon: HeroIcons.shoppingBag,
-        categoryColor: const Color(0xFFF59E0B),
-      ),
-      Transaction(
-        id: '4',
-        description: 'Netflix Subscription',
-        amount: 15.99,
-        date: DateTime.now().subtract(const Duration(days: 3)),
-        category: 'Entertainment',
-        categoryIcon: HeroIcons.playCircle,
-        categoryColor: const Color(0xFFEF4444),
-      ),
-      Transaction(
-        id: '5',
-        description: 'Electric Bill',
-        amount: 89.45,
-        date: DateTime.now().subtract(const Duration(days: 5)),
-        category: 'Bills & Utilities',
-        categoryIcon: HeroIcons.bolt,
-        categoryColor: const Color(0xFF6B7280),
-      ),
-      Transaction(
-        id: '6',
-        description: 'Grocery Store',
-        amount: 124.67,
-        date: DateTime.now().subtract(const Duration(days: 6)),
-        category: 'Food & Dining',
-        categoryIcon: HeroIcons.buildingStorefront,
-        categoryColor: AppTheme.accentColor,
-      ),
-      Transaction(
-        id: '7',
-        description: 'Gas Station',
-        amount: 45.20,
-        date: DateTime.now().subtract(const Duration(days: 7)),
-        category: 'Transportation',
-        categoryIcon: HeroIcons.truck,
-        categoryColor: const Color(0xFF8B5CF6),
-      ),
-    ];
+    DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+    final sorted = septTransactions..sort((a, b) => dateFormat.parse(b["date"]).compareTo(dateFormat.parse(a["date"])));
+
+    return sorted.map((json) => Transaction.fromJson(json)).toList().take(5).toList();
   }
 }
 
@@ -224,4 +164,52 @@ class Transaction {
     required this.categoryIcon,
     required this.categoryColor,
   });
+
+  factory Transaction.fromJson(Map<String, dynamic> json) {
+    DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+    return Transaction(
+      id: json['id'],
+      description: json['description'],
+      amount: json['amount'],
+      date: dateFormat.parse(json['date']),
+      category: json['category'],
+      categoryIcon: getCategoryIcon(json['category']),
+      categoryColor: getCategoryColor(json['category']),
+    );
+  }
 }
+
+HeroIcons getCategoryIcon(String category) {  
+  switch (category) {
+    case 'Food & Groceries':
+      return HeroIcons.buildingStorefront;
+    case 'Transport':
+      return HeroIcons.truck;
+    case 'Housing & Utilities':
+      return HeroIcons.shoppingBag;
+    case 'Education & Childcare':
+      return HeroIcons.academicCap;
+    case 'Health':
+      return HeroIcons.heart;
+    default:
+      return HeroIcons.ellipsisHorizontal;
+  }
+}
+
+Color getCategoryColor(String category) {
+  switch (category) {
+    case 'Food & Groceries':
+      return AppTheme.accentColor;
+    case 'Transport':
+      return const Color(0xFF8B5CF6);
+    case 'Housing & Utilities':
+      return const Color(0xFFF59E0B);
+    case 'Education & Childcare':
+      return const Color(0xFFEF4444);
+    case 'Health':
+      return const Color(0xFF6B7280);
+    default:
+      return AppTheme.textSecondary;
+  }
+}
+

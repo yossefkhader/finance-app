@@ -19,7 +19,7 @@ class SidebarNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentRoute = GoRouterState.of(context).uri.path;
-    final width = isCollapsed ? 72.0 : 256.0;
+    final width = isCollapsed ? 73.0 : 256.0;
     final l10n = AppLocalizations.of(context)!;
 
     return AnimatedContainer(
@@ -67,6 +67,21 @@ class SidebarNavigation extends StatelessWidget {
                     route: '/budget',
                     isActive: currentRoute == '/budget',
                   ),
+                  _buildNavItem(
+                    context,
+                    icon: HeroIcons.chatBubbleLeftRight,
+                    label: 'المساعد الذكي',
+                    route: '/ai-chat',
+                    isActive: currentRoute == '/ai-chat',
+                  ),
+                  const SizedBox(height: AppTheme.spacingSm),
+                  _buildNavItem( // Lessons navigation item
+                    context,
+                    icon: HeroIcons.academicCap,
+                    label: l10n.lessons, // Localized label
+                    route: '/lessons',
+                    isActive: currentRoute.startsWith('/lessons'),
+                  ),
                   const SizedBox(height: AppTheme.spacingSm),
                   _buildNavItem(
                     context,
@@ -91,6 +106,8 @@ class SidebarNavigation extends StatelessWidget {
                     route: '/profile',
                     isActive: currentRoute == '/profile',
                   ),
+                  const SizedBox(height: AppTheme.spacingSm),
+                  
                 ],
               ),
             ),

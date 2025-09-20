@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../data/expenses.dart';
 
 class SpendingChart extends StatelessWidget {
   const SpendingChart({super.key});
@@ -9,7 +10,7 @@ class SpendingChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 280,
+      height: 300,
       child: Row(
         children: [
           // Pie Chart
@@ -32,9 +33,13 @@ class SpendingChart extends StatelessWidget {
           // Legend
           Expanded(
             flex: 2,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _buildLegend(context),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ..._buildLegend(context),
+                  ],
+              ),
             ),
           ),
         ],
@@ -91,7 +96,7 @@ class SpendingChart extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${category.amount.toStringAsFixed(0)} ر.س (%$percentage)',
+                    '${category.amount.toStringAsFixed(0)} ₪ (%$percentage)',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -105,36 +110,39 @@ class SpendingChart extends StatelessWidget {
 
   List<SpendingCategory> _getSpendingCategories(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    // Get current month data (September - month 9)
+    final currentMonth = budget.lastWhere((month) => month['month'] == 9);
+    
     return [
       SpendingCategory(
+        name: 'السكن والخدمات',
+        amount: (currentMonth['housingUtilities'] as num).toDouble(),
+        color: const Color(0xFF6B7280),
+      ),
+      SpendingCategory(
         name: l10n.foodDining,
-        amount: 850,
+        amount: (currentMonth['foodGroceries'] as num).toDouble(),
         color: AppTheme.accentColor,
       ),
       SpendingCategory(
         name: l10n.transportation,
-        amount: 420,
+        amount: (currentMonth['transport'] as num).toDouble(),
         color: const Color(0xFF8B5CF6),
       ),
       SpendingCategory(
-        name: l10n.shopping,
-        amount: 320,
-        color: const Color(0xFFF59E0B),
+        name: 'التعليم ورعاية الأطفال',
+        amount: (currentMonth['educationChildcare'] as num).toDouble(),
+        color: const Color(0xFF3B82F6),
       ),
       SpendingCategory(
-        name: l10n.entertainment,
-        amount: 180,
-        color: const Color(0xFFEF4444),
-      ),
-      SpendingCategory(
-        name: l10n.billsUtilities,
-        amount: 650,
-        color: const Color(0xFF6B7280),
+        name: l10n.healthcare,
+        amount: (currentMonth['health'] as num).toDouble(),
+        color: const Color(0xFFEC4899),
       ),
       SpendingCategory(
         name: l10n.other,
-        amount: 130,
-        color: const Color(0xFF14B8A6),
+        amount: (currentMonth['other'] as num).toDouble(),
+        color: const Color(0xFFF59E0B),
       ),
     ];
   }

@@ -6,6 +6,9 @@ import 'pages/budget_page.dart';
 import 'pages/savings_page.dart';
 import 'pages/charity_page.dart';
 import 'pages/profile_page.dart';
+import 'pages/ai_chat_page.dart';
+import 'pages/lessons_page.dart';
+import 'pages/lesson_detail_page.dart';
 import 'theme/app_theme.dart';
 import 'l10n/app_localizations.dart';
 
@@ -41,6 +44,21 @@ class MizanApp extends StatelessWidget {
           GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfilePage(),
+          ),
+          GoRoute(
+            path: '/ai-chat',
+            builder: (context, state) => const AiChatPage(),
+          ),
+          GoRoute( // Lessons routes
+            path: '/lessons',
+            builder: (context, state) => const LessonsPage(),
+          ),
+          GoRoute(
+            path: '/lessons/:lessonId',
+            builder: (context, state) {
+              final lessonId = state.pathParameters['lessonId']!;
+              return LessonDetailPage(lessonId: lessonId);
+            },
           ),
         ],
       ),

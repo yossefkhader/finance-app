@@ -22,6 +22,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileSettings => 'الملف الشخصي والإعدادات';
+  
+  @override
+  String get aiAssistant => 'المساعد الذكي';
+  
+  @override
+  String get lessons => 'الدروس';
 
   // Dashboard
   @override
@@ -416,4 +422,40 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get december => 'ديسمبر';
+
+  // Lessons
+  @override
+  String get lessonsTitle => 'دروس مالية';
+  @override
+  String get lessonsSubtitle => 'تعلم إدارة أموالك خطوة بخطوة';
+  @override
+  String get lessonProgress => 'تقدم الدروس';
+  @override
+  String get completedLessons => 'دروس مكتملة';
+  @override
+  String get startLesson => 'بدء الدرس';
+  @override
+  String get continueLesson => 'متابعة الدرس';
+  @override
+  String get lessonCompleted => 'الدرس مكتمل';
+  @override
+  String get introduction => 'المقدمة';
+  @override
+  String get whyImportant => 'لماذا هذا مهم؟';
+  @override
+  String get steps => 'الخطوات';
+  @override
+  String get example => 'مثال';
+  @override
+  String get tips => 'نصائح';
+  @override
+  String get homework => 'الواجب المنزلي';
+  @override
+  String get checklist => 'قائمة المراجعة';
+  @override
+  String get markComplete => 'تمييز كمكتمل';
+  @override
+  String get backToLessons => 'العودة للدروس';
+  @override
+  String get lessonGoal => 'هدف الدرس';
 }

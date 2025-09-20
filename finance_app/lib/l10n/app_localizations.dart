@@ -56,6 +56,8 @@ abstract class AppLocalizations {
   String get savings;
   String get charityImpact;
   String get profileSettings;
+  String get aiAssistant;
+  String get lessons;
 
   // Dashboard
   String get totalBalance;
@@ -204,6 +206,25 @@ abstract class AppLocalizations {
   String get october;
   String get november;
   String get december;
+
+  // Lessons
+  String get lessonsTitle;
+  String get lessonsSubtitle;
+  String get lessonProgress;
+  String get completedLessons;
+  String get startLesson;
+  String get continueLesson;
+  String get lessonCompleted;
+  String get introduction;
+  String get whyImportant;
+  String get steps;
+  String get example;
+  String get tips;
+  String get homework;
+  String get checklist;
+  String get markComplete;
+  String get backToLessons;
+  String get lessonGoal;
 }
 
 class _AppLocalizationsDelegate

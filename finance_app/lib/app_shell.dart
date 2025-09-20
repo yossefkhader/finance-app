@@ -120,7 +120,7 @@ class _AppShellState extends State<AppShell> {
             // Quick Actions
             if (currentRoute == '/dashboard' || currentRoute == '/budget')
               ElevatedButton.icon(
-                onPressed: () => _showAddExpenseModal(context),
+                onPressed: () => context.go('/ai-chat'),
                 icon: const HeroIcon(
                   HeroIcons.plus,
                   size: 16,
@@ -158,7 +158,14 @@ class _AppShellState extends State<AppShell> {
         return l10n.charityImpact;
       case '/profile':
         return l10n.profileSettings;
+      case '/ai-chat':
+        return 'المساعد الذكي';
+      case '/lessons':
+        return l10n.lessons;
       default:
+        if (route.startsWith('/lessons/')) {
+          return l10n.lessons;
+        }
         return l10n.appName;
     }
   }
