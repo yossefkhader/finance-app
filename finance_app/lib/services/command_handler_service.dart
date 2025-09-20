@@ -73,10 +73,10 @@ class CommandHandlerService {
 
   static Future<void> _handleAddExpense(BuildContext context, AiCommand command) async {
     // Show the add expense modal with pre-filled data if provided
-    final amount = command.parameters['amount'] as double?;
-    final category = command.parameters['category'] as String?;
-    final description = command.parameters['description'] as String?;
-    final date = DateTime.now();
+    final amount = command.parameters['amount'] as double? ?? 0.0;
+    final category = command.parameters['category'] as String? ?? 'other';
+    final description = command.parameters['description'] as String? ?? '';
+    final date = DateTime.now() ?? DateTime.now();
 
     final expense = {
       'id' : '${date.year}-${date.month}-${date.day}-${category}',

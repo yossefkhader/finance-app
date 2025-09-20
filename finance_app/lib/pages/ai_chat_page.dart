@@ -41,7 +41,7 @@ class _AiChatPageState extends State<AiChatPage> {
     // TODO: Initialize OpenAI with your API key
     // You should store this securely, not hardcode it!
     // For development, you can set it here or load from environment
-    OpenAIService.initialize('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');
+    OpenAIService.initialize('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');
     
     // For now, we'll continue with mock responses until API key is provided
     if (!OpenAIService.isConfigured) {
