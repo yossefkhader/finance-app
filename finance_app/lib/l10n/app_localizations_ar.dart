@@ -21,7 +21,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get charityImpact => 'الخير والأثر';
 
   @override
-  String get profileSettings => 'الملف الشخصي والإعدادات';
+  String get profileSettings => 'الملف الشخصي';
   
   @override
   String get aiAssistant => 'المساعد الذكي';

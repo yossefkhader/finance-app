@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,6 +7,9 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../models/ai_response.dart';
+import '../services/openai_service.dart';
+import '../services/command_handler_service.dart';
 
 class AiChatPage extends StatefulWidget {
   const AiChatPage({super.key});
@@ -29,7 +33,20 @@ class _AiChatPageState extends State<AiChatPage> {
   void initState() {
     super.initState();
     _initSpeech();
+    _initOpenAI();
     _addWelcomeMessage();
+  }
+
+  void _initOpenAI() {
+    // TODO: Initialize OpenAI with your API key
+    // You should store this securely, not hardcode it!
+    // For development, you can set it here or load from environment
+    OpenAIService.initialize('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');
+    
+    // For now, we'll continue with mock responses until API key is provided
+    if (!OpenAIService.isConfigured) {
+      print('OpenAI API key not configured. Using mock responses.');
+    }
   }
 
   void _initSpeech() async {
@@ -76,67 +93,6 @@ class _AiChatPageState extends State<AiChatPage> {
       ),
     );
   }
-
-  // Widget _buildChatHeader(AppLocalizations l10n) {
-  //   return Container(
-  //     padding: const EdgeInsets.all(AppTheme.spacingLg),
-  //     decoration: BoxDecoration(
-  //       color: AppTheme.cardColor,
-  //       boxShadow: AppTheme.cardShadow,
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         Container(
-  //           width: 40,
-  //           height: 40,
-  //           decoration: BoxDecoration(
-  //             gradient: LinearGradient(
-  //               colors: [AppTheme.accentColor, AppTheme.accentSecondary],
-  //               begin: Alignment.topLeft,
-  //               end: Alignment.bottomRight,
-  //             ),
-  //             borderRadius: BorderRadius.circular(20),
-  //           ),
-  //           child: const Center(
-  //             child: HeroIcon(
-  //               HeroIcons.sparkles,
-  //               size: 20,
-  //               color: Colors.white,
-  //             ),
-  //           ),
-  //         ),
-          
-  //         const SizedBox(width: AppTheme.spacingMd),
-          
-  //         Expanded(
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               Text(
-  //                 'المساعد المالي الذكي',
-  //                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-  //                   fontWeight: FontWeight.w600,
-  //                 ),
-  //               ),
-  //               Text(
-  //                 _isTyping ? 'يكتب...' : 'متصل',
-  //                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-  //                   color: _isTyping ? AppTheme.accentColor : AppTheme.successColor,
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-          
-  //         IconButton(
-  //           icon: const HeroIcon(HeroIcons.ellipsisVertical),
-  //           onPressed: () => _showChatOptions(context),
-  //           color: AppTheme.textSecondary,
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildMessagesList() {
     return ListView.builder(
@@ -217,6 +173,12 @@ class _AiChatPageState extends State<AiChatPage> {
                       color: message.isUser ? Colors.white : AppTheme.textPrimary,
                     ),
                   ),
+                  
+                  // Show command buttons for AI responses
+                  if (!message.isUser && message.aiResponse != null && message.aiResponse!.commands.isNotEmpty) ...[
+                    const SizedBox(height: AppTheme.spacingMd),
+                    _buildCommandButtons(message.aiResponse!.commands),
+                  ],
                   
                   const SizedBox(height: AppTheme.spacingXs),
                   
@@ -368,47 +330,78 @@ class _AiChatPageState extends State<AiChatPage> {
     });
 
     _scrollToBottom();
-    _generateAIResponse('تحليل الصورة المرفقة');
+    _generateAIResponse('تحليل الصورة المرفقة', image: image);
   }
 
-  void _generateAIResponse(String userMessage) {
-    // Simulate AI response delay
-    Future.delayed(const Duration(seconds: 2), () {
+  void _generateAIResponse(String userMessage, {File? image}) async {
+    try {
+      String? imageBase64;
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        imageBase64 = base64Encode(bytes);
+      }
+
+      AiResponse aiResponse;
+      
+      if (OpenAIService.isConfigured) {
+        // Use real OpenAI API
+        final conversationHistory = _messages
+            .map((msg) => msg.toOpenAIFormat())
+            .toList();
+            
+        aiResponse = await OpenAIService.sendMessage(
+          message: userMessage,
+          imageBase64: imageBase64,
+          conversationHistory: OpenAIService.formatConversationHistory(conversationHistory),
+        );
+      } else {
+        // Use mock response for development
+        aiResponse = _getMockAIResponse(userMessage, hasImage: image != null);
+      }
+
       if (!mounted) return;
       
       setState(() {
         _isTyping = false;
         _messages.add(ChatMessage(
-          text: _getAIResponse(userMessage),
+          text: aiResponse.text,
           isUser: false,
           timestamp: DateTime.now(),
+          aiResponse: aiResponse,
         ));
       });
       
       _scrollToBottom();
-    });
+    } catch (e) {
+      if (!mounted) return;
+      
+      setState(() {
+        _isTyping = false;
+        _messages.add(ChatMessage(
+          text: 'عذراً، حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.',
+          isUser: false,
+          timestamp: DateTime.now(),
+          aiResponse: AiResponse(
+            text: 'عذراً، حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.',
+            type: AiResponseType.error,
+          ),
+        ));
+      });
+      
+      _scrollToBottom();
+    }
   }
 
-  String _getAIResponse(String userMessage) {
-    final lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.contains('ميزانية') || lowerMessage.contains('budget')) {
-      return 'بناءً على بياناتك المالية، ميزانيتك الشهرية ٢٧٥٠ ريال وقد استخدمت ٦٨٪ منها. أنصحك بمراقبة المصروفات في الفئات التالية:\n\n• الطعام والمطاعم: ٨٥٠ ريال\n• الفواتير والخدمات: ٦٥٠ ريال\n\nهل تريد نصائح لتوفير المزيد؟';
-    }
-    
-    if (lowerMessage.contains('مدخرات') || lowerMessage.contains('savings')) {
-      return 'مدخراتك تبدو جيدة! هذا الشهر وفرت ٤٨٢ ريال من خلال التقريب والادخار اليدوي.\n\n💡 نصائح لزيادة المدخرات:\n• فعّل التقريب التلقائي\n• ضع هدف ادخار شهري\n• راجع المصروفات غير الضرورية\n\nهدفك الحالي للطوارئ: ٢٨٤٨ من ٥٠٠٠ ريال (٥٧٪)';
-    }
-    
-    if (lowerMessage.contains('صورة') || lowerMessage.contains('تحليل')) {
-      return 'شكراً لإرفاق الصورة! 📸\n\nيمكنني مساعدتك في:\n• تحليل الفواتير وإدخالها تلقائياً\n• قراءة أرقام المبالغ\n• تصنيف نوع المصروف\n\nلتفعيل هذه الميزة بالكامل، سنحتاج إلى ربط خدمة التعرف الضوئي على النصوص.';
-    }
-    
-    if (lowerMessage.contains('نصيحة') || lowerMessage.contains('help')) {
-      return 'إليك أهم النصائح المالية بناءً على وضعك:\n\n💰 **ادخار فوري:**\n• قلل مصروفات المطاعم بـ ٢٠٪\n• راجع الاشتراكات الشهرية\n\n📊 **تخطيط مالي:**\n• ضع ميزانية للترفيه\n• زيد نسبة الادخار لـ ٢٠٪\n\n🎯 **أهداف:**\n• أكمل صندوق الطوارئ\n• ابدأ استثمار بسيط\n\nأي موضوع تريد التفصيل فيه؟';
-    }
-    
-    return 'شكراً لسؤالك! أنا هنا لمساعدتك في جميع الأمور المالية. يمكنني مساعدتك في:\n\n• تحليل ميزانيتك ومصروفاتك\n• تقديم نصائح للادخار\n• تتبع أهدافك المالية\n• تحليل عادات الإنفاق\n\nما الذي تريد معرفته بالتحديد؟';
+  AiResponse _getMockAIResponse(String userMessage, {bool hasImage = false}) {    
+    return AiResponse(
+      text: 'مرحباً! أنا مساعدك المالي الذكي. يمكنني مساعدتك في:\n\n💰 إدارة الميزانية\n📊 تتبع المصروفات\n🎯 وضع أهداف الادخار\n📈 تحليل عاداتك المالية\n📚 تعلم الأساسيات المالية\n\nما الذي تريد أن نبدأ به؟',
+      commands: [
+        AiCommandTemplates.navigateToPage('/dashboard', label: 'عرض لوحة التحكم'),
+        AiCommandTemplates.navigateToPage('/lessons', label: 'ابدأ التعلم'),
+        AiCommandTemplates.addExpense(0, 'other', ''),
+      ],
+      type: AiResponseType.text,
+    );
   }
 
   void _toggleListening() async {
@@ -461,41 +454,98 @@ class _AiChatPageState extends State<AiChatPage> {
     });
   }
 
-  void _showChatOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(AppTheme.spacingLg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const HeroIcon(HeroIcons.trash),
-              title: const Text('مسح المحادثة'),
-              onTap: () {
-                Navigator.pop(context);
-                _clearChat();
-              },
-            ),
-            ListTile(
-              leading: const HeroIcon(HeroIcons.share),
-              title: const Text('مشاركة المحادثة'),
-              onTap: () {
-                Navigator.pop(context);
-                // Implement share functionality
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _clearChat() {
     setState(() {
       _messages.clear();
     });
     _addWelcomeMessage();
+  }
+
+  Widget _buildCommandButtons(List<AiCommand> commands) {
+    return Wrap(
+      spacing: AppTheme.spacingSm,
+      runSpacing: AppTheme.spacingSm,
+      children: commands.map((command) {
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _executeCommand(command),
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusMd),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spacingMd,
+                vertical: AppTheme.spacingSm,
+              ),
+              decoration: BoxDecoration(
+                color: AppTheme.accentColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppTheme.borderRadiusMd),
+                border: Border.all(
+                  color: AppTheme.accentColor.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  HeroIcon(
+                    _getCommandIcon(command.type),
+                    size: 16,
+                    color: AppTheme.accentColor,
+                  ),
+                  const SizedBox(width: AppTheme.spacingXs),
+                  Text(
+                    command.label ?? CommandHandlerService.getCommandDescription(command),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppTheme.accentColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  HeroIcons _getCommandIcon(AiCommandType type) {
+    switch (type) {
+      case AiCommandType.navigate:
+        return HeroIcons.arrowTopRightOnSquare;
+      case AiCommandType.addExpense:
+        return HeroIcons.plus;
+      case AiCommandType.createBudget:
+        return HeroIcons.wallet;
+      case AiCommandType.showChart:
+        return HeroIcons.chartBarSquare;
+      case AiCommandType.setGoal:
+        return HeroIcons.flag;
+      case AiCommandType.calculate:
+        return HeroIcons.calculator;
+      case AiCommandType.learn:
+        return HeroIcons.academicCap;
+      case AiCommandType.analyze:
+        return HeroIcons.chartPie;
+      default:
+        return HeroIcons.commandLine;
+    }
+  }
+
+  void _executeCommand(AiCommand command) async {
+    try {
+      await CommandHandlerService.executeCommand(context, command);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ في تنفيذ الأمر: ${e.toString()}'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
   }
 
   String _formatTime(DateTime time) {
@@ -508,11 +558,23 @@ class ChatMessage {
   final bool isUser;
   final DateTime timestamp;
   final File? image;
+  final AiResponse? aiResponse;
 
   ChatMessage({
     required this.text,
     required this.isUser,
     required this.timestamp,
     this.image,
+    this.aiResponse,
   });
+
+  // Convert to format suitable for OpenAI conversation history
+  Map<String, dynamic> toOpenAIFormat() {
+    return {
+      'isUser': isUser,
+      'text': text,
+      'timestamp': timestamp.toIso8601String(),
+      'hasImage': image != null,
+    };
+  }
 }

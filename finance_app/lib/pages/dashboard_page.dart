@@ -1,3 +1,4 @@
+import 'package:finance_app/data/budget.dart';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
 import '../theme/app_theme.dart';
@@ -13,18 +14,18 @@ class DashboardPage extends StatelessWidget {
   // Helper methods to calculate data from expenses.dart
   Map<String, num> get _currentMonthData {
     // Get the latest month data (September - month 9)
-    return budget.lastWhere((month) => month['month'] == 9);
+    return monthlyExpenses.lastWhere((month) => month['month'] == 9);
   }
 
   Map<String, num> get _previousMonthData {
     // Get August data (month 8) for comparison
-    return budget.lastWhere((month) => month['month'] == 8);
+    return monthlyExpenses.lastWhere((month) => month['month'] == 8);
   }
 
   double get _totalBalance {
     // Calculate total balance as sum of net income minus deficits over time
     double balance = 0;
-    for (var monthData in budget) {
+    for (var monthData in monthlyExpenses) {
       balance += (monthData['surplusDeficit'] as num).toDouble();
     }
     // Start with a base balance and add the accumulated surplus/deficit
@@ -52,7 +53,7 @@ class DashboardPage extends StatelessWidget {
   double get _budgetUsedPercentage {
     final currentMonth = _currentMonthData;
     final totalExpenses = (currentMonth['totalExpenses'] as num).toDouble();
-    final netIncome = (currentMonth['netIncome'] as num).toDouble();
+    final netIncome = budget.values.reduce((a, b) => a + b);
     return totalExpenses / netIncome;
   }
 

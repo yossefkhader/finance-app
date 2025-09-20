@@ -6,7 +6,16 @@ import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 
 class AddExpenseModal extends StatefulWidget {
-  const AddExpenseModal({super.key});
+  final double? initialAmount;
+  final String? initialCategory;
+  final String? initialDescription;
+
+  const AddExpenseModal({
+    super.key,
+    this.initialAmount,
+    this.initialCategory,
+    this.initialDescription,
+  });
 
   @override
   State<AddExpenseModal> createState() => _AddExpenseModalState();
@@ -32,6 +41,24 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
     'personalCare',
     'other',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with current date
+    _selectedDate = DateTime.now();
+    
+    // Set initial values if provided
+    if (widget.initialAmount != null) {
+      _amountController.text = widget.initialAmount!.toString();
+    }
+    if (widget.initialDescription != null) {
+      _descriptionController.text = widget.initialDescription!;
+    }
+    if (widget.initialCategory != null && _categories.contains(widget.initialCategory)) {
+      _selectedCategory = widget.initialCategory!;
+    }
+  }
 
   @override
   void dispose() {

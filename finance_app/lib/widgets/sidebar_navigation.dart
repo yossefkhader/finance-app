@@ -93,14 +93,6 @@ class SidebarNavigation extends StatelessWidget {
                   const SizedBox(height: AppTheme.spacingSm),
                   _buildNavItem(
                     context,
-                    icon: HeroIcons.heart,
-                    label: l10n.charityImpact,
-                    route: '/charity',
-                    isActive: currentRoute == '/charity',
-                  ),
-                  const SizedBox(height: AppTheme.spacingSm),
-                  _buildNavItem(
-                    context,
                     icon: HeroIcons.user,
                     label: l10n.profileSettings,
                     route: '/profile',
@@ -140,17 +132,9 @@ class SidebarNavigation extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppTheme.accentColor,
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusMd),
-            ),
-            child: const Center(
-              child: Text(
-                'M',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
+              image: DecorationImage(
+                image: AssetImage('assets/logo.png'),
+                fit: BoxFit.cover,
               ),
             ),
           ),

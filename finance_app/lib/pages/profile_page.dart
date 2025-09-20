@@ -28,10 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildAccountSection(),
           
           const SizedBox(height: AppTheme.spacingXl),
-          
-          // Savings & Round-Ups Section
-          _buildSavingsSection(),
-          
+
           const SizedBox(height: AppTheme.spacingXl),
           
           // Notifications Section
@@ -142,96 +139,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSavingsSection() {
-    return _buildSection(
-      title: 'Savings & Round-Ups',
-      icon: HeroIcons.arrowTrendingUp,
-      child: Column(
-        children: [
-          // Round-ups toggle
-          _buildSettingItem(
-            title: 'Enable Round-Ups',
-            subtitle: 'Automatically round up purchases and save the difference',
-            trailing: Switch(
-              value: _roundUpsEnabled,
-              onChanged: (value) {
-                setState(() {
-                  _roundUpsEnabled = value;
-                });
-              },
-              activeColor: AppTheme.accentColor,
-            ),
-          ),
-          
-          const SizedBox(height: AppTheme.spacingLg),
-          
-          // Monthly savings goal
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Monthly Savings Goal',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  Text(
-                    '\$${_monthlySavingsGoal.toInt()}',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: AppTheme.accentColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: AppTheme.spacingMd),
-              
-              Slider(
-                value: _monthlySavingsGoal,
-                min: 100,
-                max: 2000,
-                divisions: 19,
-                activeColor: AppTheme.accentColor,
-                onChanged: (value) {
-                  setState(() {
-                    _monthlySavingsGoal = value;
-                  });
-                },
-              ),
-              
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '\$100',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    '\$2,000',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: AppTheme.spacingXl),
-          
-          // Save button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              child: const Text('Save Preferences'),
-            ),
           ),
         ],
       ),

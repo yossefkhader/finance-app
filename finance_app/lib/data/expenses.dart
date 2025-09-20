@@ -1,4 +1,4 @@
-final List<Map<String, num>> budget = [
+final List<Map<String, num>> monthlyExpenses = [
   {
     "month": 1, // Jan
     "netIncome": 11600,

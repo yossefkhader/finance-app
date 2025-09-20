@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'app_shell.dart';
 import 'pages/dashboard_page.dart';
 import 'pages/budget_page.dart';
-import 'pages/savings_page.dart';
 import 'pages/charity_page.dart';
 import 'pages/profile_page.dart';
 import 'pages/ai_chat_page.dart';
@@ -32,10 +31,6 @@ class MizanApp extends StatelessWidget {
           GoRoute(
             path: '/budget',
             builder: (context, state) => const BudgetPage(),
-          ),
-          GoRoute(
-            path: '/savings',
-            builder: (context, state) => const SavingsPage(),
           ),
           GoRoute(
             path: '/charity',

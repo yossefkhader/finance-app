@@ -111,7 +111,7 @@ class SpendingChart extends StatelessWidget {
   List<SpendingCategory> _getSpendingCategories(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     // Get current month data (September - month 9)
-    final currentMonth = budget.lastWhere((month) => month['month'] == 9);
+    final currentMonth = monthlyExpenses.lastWhere((month) => month['month'] == 9);
     
     return [
       SpendingCategory(
